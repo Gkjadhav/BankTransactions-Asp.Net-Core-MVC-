@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BankTransaction.Models;
 using BankTransactions.Models;
+using BankTransaction.Pagination;
+using BankTransaction.Interfaces;
 
 namespace BankTransactions.Controllers
 {
@@ -14,15 +16,19 @@ namespace BankTransactions.Controllers
     {
         private readonly TransactionDbContext _context;
 
-        public TransactionController(TransactionDbContext context)
+        private readonly ITransactionRepository _transactionRepository;
+
+        public TransactionController(ITransactionRepository transactionRepository, TransactionDbContext context)
         {
+            _transactionRepository = transactionRepository;
             _context = context;
         }
 
-        // GET: Transaction
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index([FromQuery] QueryParameters queryParameters)
         {
-            return View(await _context.Transactions.ToListAsync());
+            if (queryParameters is null) queryParameters = new QueryParameters();
+            return View(await _transactionRepository.GetAllAsync(queryParameters));
         }
 
 

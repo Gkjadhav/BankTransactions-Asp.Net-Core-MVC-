@@ -1,8 +1,11 @@
+using BankTransaction.Interfaces;
+using BankTransaction.Repositories;
 using BankTransactions.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

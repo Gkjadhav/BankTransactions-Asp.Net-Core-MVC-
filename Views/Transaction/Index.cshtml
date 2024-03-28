@@ -1,25 +1,47 @@
-﻿@model IEnumerable<BankTransaction.Models.Transaction>
+﻿@using BankTransaction.Pagination;
+@model PaginatedList<BankTransaction.Models.Transaction>
 
 @{
-    ViewData["Title"] = "PassBook";
+    ViewData["Title"] = "Bank Transaction";
 }
 
 <h1>PassBook</h1>
+
+<form method="get" asp-controller="Transaction" asp-action="Index">
+    <div class="input-group">
+        <input type="hidden" name="pageNumber" value="1" />
+        @if (string.IsNullOrWhiteSpace(Model.SearchText))
+        {
+            <input type="text" class="form-control" placeholder="Search ..." name="SearchText">
+        }
+        else
+        {
+            <input type="text" class="form-control" placeholder="Search ..." value="@Model.SearchText" name="SearchText">
+        }
+        <div class="input-group-btn">
+            @if (!string.IsNullOrWhiteSpace(Model.SearchText))
+            {
+                <a class="btn btn-danger" asp-controller="Transaction" asp-action="Index">Clear</a>
+            }
+            <button class="btn btn-success" type="submit">Search</button>
+        </div>
+    </div>
+</form>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.AccountNumber)
+                Account Number
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BeneficiaryName)
+                Beneficiary Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Date)
+                Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Amount)
+                Amount
             </th>
             <th>
                 <a asp-action="AddOrEdit" class="btn btn-sm btn-success">
@@ -29,19 +51,19 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.AccountNumber)
+                @item.AccountNumber
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BeneficiaryName)
+                @item.BeneficiaryName
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Date)
+                @item.Date
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Amount)
+                @item.Amount
             </td>
             <td>
                 <form asp-action="Delete" asp-route-id="@item.TransactionId">
@@ -59,4 +81,40 @@
         </tr>
 }
     </tbody>
-</table>
+  </table>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            @if (Model.HasPrevoiusPage)
+            {
+                int pageNumber = Model.PageIndex - 1;
+                if (!string.IsNullOrWhiteSpace(Model.SearchText))
+                {
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="@pageNumber" asp-route-pageIndex="1" asp-route-SearchText="@Model.SearchText">First Page</a></li>
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="@pageNumber" asp-route-SearchText="@Model.SearchText">@pageNumber</a></li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="1">First Page</a></li>
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="@pageNumber">@pageNumber</a></li>
+                }
+            }
+
+            <li class="page-item active"><a class="page-link" href="#">@Model.PageIndex</a></li>
+
+            @if (Model.HasNextPage)
+            {
+                int pageNumber = Model.PageIndex + 1;
+                if (!string.IsNullOrWhiteSpace(Model.SearchText))
+                {
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="@pageNumber" asp-route-SearchText="@Model.SearchText">@pageNumber</a></li>
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="@pageNumber" asp-route-pageIndex="@Model.TotalPages" asp-route-SearchText="@Model.SearchText">Last Page</a></li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="@pageNumber">@pageNumber</a></li>
+                    <li class="page-item"><a class="page-link" asp-controller="Transaction" asp-action="Index" asp-route-pageIndex="@Model.TotalPages">Last Page</a></li>
+                }
+            }
+        </ul>
+    </nav>
+
